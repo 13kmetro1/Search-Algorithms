@@ -72,6 +72,15 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+class superlist(object):
+    def __init__(self,lol,xd):
+        self.lol = lol
+        self.xd = xd
+class supernode(object):
+    def __init__(self,lol,xd,cost):
+        self.lol = lol
+        self.xd = xd
+        self.cost = cost
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -85,20 +94,111 @@ def depthFirstSearch(problem):
     print "Start:", problem.getStartState()
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
+    
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    import copy
+    stack = []
+    first = superlist([],[problem.getStartState()])
+    stack.append(first)
+    if problem.isGoalState(problem.getStartState()):
+        
+        return first.lol
+    
+    while not len(stack) == 0:
+        
+        current = stack.pop()
+        currentd = current.xd[-1]
+        #if(current == problem.getStartState()):
+            #print 'hi'
+        try:
+            if problem.isGoalState(current.xd[-1]):            
+                return current.lol
+        except TypeError or AttributeError:
+                return current.lol
+        else:
+            adj = problem.getSuccessors(currentd)
+            for x in adj:
+                    if not x[0] in current.xd:
+                        newdir = copy.copy(current.lol)
+                        newdir.append(x[1])
+                        newloc = copy.copy(current.xd)
+                        newloc.append(x[0])
+                        jpg = superlist(newdir,newloc)
+                        stack.append(jpg)
+                      
+    return []
+            
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
+    first = superlist([],[problem.getStartState()])
+    import copy
+    q = util.Queue()
+    
+    if problem.isGoalState(problem.getStartState()):        
+        return first.lol
+    q.push(first)
+    visited = [problem.getStartState()]
+    
+    while not q.isEmpty():
+        current = q.pop()
+        let = current.xd[-1]
+        try:
+            if problem.isGoalState(let):           
+                return current.lol
+        except TypeError:
+            return current.lol
+        adj = problem.getSuccessors(let)
+        for x in adj:
+            if (not x[0] in current.xd) and (not x[0] in visited):
+                try:
+                    if not problem.isGoalState(x[0]):
+                        visited.append(x[0])
+                except TypeError:
+                    pass
+                jpg = superlist(copy.copy(current.lol),copy.copy(current.xd))
+                jpg.lol.append(x[1])
+                jpg.xd.append(x[0])                
+                q.push(jpg)
+    return[]
+                
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
+   
+    import copy
+    first = supernode([],[problem.getStartState()],0)
+    pq = util.PriorityQueue()
+    if problem.isGoalState(problem.getStartState()):        
+        return first.lol
+    visited = [problem.getStartState()]
+    pq.push(first,0)
+    while not pq.isEmpty():
+        current = pq.pop()
+        topnode = len(current.xd)-1
+        let = current.xd[topnode]
+        try:
+            if problem.isGoalState(let):           
+                return current.lol
+        except TypeError:
+            return current.lol
+        for x in problem.getSuccessors(let):
+            if not x[0] in visited and not x[0] in current.xd:
+                newcost = (x[2]) + current.cost
+                jpg = supernode(copy.copy(current.lol),copy.copy(current.xd),newcost)
+                jpg.lol.append(x[1])
+                jpg.xd.append(x[0])                
+                pq.push(jpg,jpg.cost)
+                
+                if problem.isGoalState(x[0]):
+                    print "goal state"
+                else:
+                    visited.append(x[0])
+     
+    return []
 def nullHeuristic(state, problem=None):
     """
     A heuristic function estimates the cost from the current state to the nearest
@@ -109,7 +209,34 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    import copy
+    first = supernode([],[problem.getStartState()],0)
+    pq = util.PriorityQueue()
+    if problem.isGoalState(problem.getStartState()):        
+        return first.lol
+    visited = [problem.getStartState()]
+    pq.push(first,0)
+    while not pq.isEmpty():
+        current = pq.pop()
+        let = current.xd[-1]
+        try:
+            if problem.isGoalState(let):           
+                return current.lol
+        except TypeError:
+            return current.lol
+        for x in problem.getSuccessors(let):
+            if not x[0] in visited and not x[0] in current.xd:
+                if not problem.isGoalState(x[0]):
+                        visited.append(x[0])
+                newcost = (x[2]) + current.cost
+                jpg = supernode(copy.copy(current.lol),copy.copy(current.xd),newcost)
+                jpg.lol.append(x[1])
+                jpg.xd.append(x[0])               
+                newh = heuristic(x[0],problem)
+                newcost = newcost + newh
+                
+                pq.push(jpg,newcost)
+    return []
 
 
 # Abbreviations
